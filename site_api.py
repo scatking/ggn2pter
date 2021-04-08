@@ -97,7 +97,7 @@ class GGnApi:
         self.release_title, release_tag = re.search(r'(.+) (\[.+])', release_element.text.strip()).groups()
         release_tag = [i.replace(']', '').strip() if '!' not in i else None for i in release_tag.split(',')]
         release_tag = list(filter(None,release_tag))
-        self.release_title = self.release_title.replace('/', '').replace('[FitGirl Repack]', '-Firgirl')
+        self.release_title = self.release_title.replace('/', '').replace('[FitGirl Repack]', '-Fitgirl')
         description_element = self.res_soup.select_one('tr#torrent_{} blockquote#description'.format(self.torrent_id))
         torrent_description = HTML2PHPBBCode().feed(str(description_element)).replace('[list]', '').replace('[/list]',
                                                                                                             '').replace(
