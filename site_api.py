@@ -258,9 +258,9 @@ class PTerApi:
             if self.scene != 'yes':
                 title_id = '[{}]'.format(true_input('请输入NS游戏的title id：'))
             rom_format = '[{}]'.format(true_input('请输入NS游戏的格式:'))
-        short_name = scatfunc.back0day(self.name, self.release_title)
+        short_name = scatfunc.back0day(self.name, self.release_title) + title_id + rom_format
         print(self.release_title)
-        user_title = input('智能检测到的种子标题为{}，若有错误，请输入正确的标题，没有请直接回车：'.format(short_name + title_id + rom_format))
+        user_title = input('智能检测到的种子标题为{}，若有错误，请输入正确的标题，没有请直接回车：'.format(short_name))
         user_title = short_name if user_title == '' else user_title
         data['name'] = user_title
         print('正在上传... ...')
