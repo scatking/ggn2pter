@@ -13,6 +13,7 @@ ANONYMOUS = constant.anonymous
 TORRENT_DIR = constant.torrent_dir
 HEADERS = constant.headers
 ELITEGAMER = constant.elite_gamer
+IMGBBKEY = constant.imgbb_key
 
 
 def true_input(content):
@@ -22,6 +23,15 @@ def true_input(content):
             print('输入内容不能为空！')
         else:
             return output
+
+
+def upload_imgbb(img):
+    api = 'https://api.imgbb.com/1/upload'
+    data = {'key': IMGBBKEY, 'image': img}
+    response = requests.post(url=api, data=data).json()
+    if response['success'] == 'true':
+        img = response['data']['display_url']
+    return img
 
 
 def find_indie(game_name):
@@ -76,8 +86,13 @@ class GGnApi:
         # url = 'http://127.0.0.1:85/ggn5.html'
         desc = self.session.get(url)
         desc_soup = BeautifulSoup(desc.text, 'lxml')
-        self.torrent_desc = desc_soup.select_one('#release_desc').text.replace('[align=center]', '').replace('[/align]',
-                                                                                                             '')
+        torrent_desc = desc_soup.select_one('#release_desc').text.replace('[align=center]', '').replace('[/align]', '')
+        nfo_img = re.search(r'https://gazellegames\.net/nfoimg/\d+\..+?g(?=\[/img])', torrent_desc).group(0)
+        try:
+            new_nfo_img = upload_imgbb(nfo_img)
+        except:
+            new_nfo_img = nfo_img
+        self.torrent_desc = torrent_desc.replace(nfo_img, new_nfo_img)
         self.release_title = desc_soup.select_one('#release_title').get('value').replace('/', '').replace(
             '[FitGirl Repack]', '-Fitgirl') if desc_soup.select_one('#release_title').get('value') else self.name
         if desc_soup.select_one('#remaster_title'):
@@ -96,13 +111,19 @@ class GGnApi:
         release_edition = release_element.find_parent('tbody').find_previous_sibling().td.text
         self.release_title, release_tag = re.search(r'(.+) (\[.+])', release_element.text.strip()).groups()
         release_tag = [i.replace(']', '').strip() if '!' not in i else None for i in release_tag.split(',')]
-        release_tag = list(filter(None,release_tag))
+        release_tag = list(filter(None, release_tag))
         self.release_title = self.release_title.replace('/', '').replace('[FitGirl Repack]', '-Fitgirl')
         description_element = self.res_soup.select_one('tr#torrent_{} blockquote#description'.format(self.torrent_id))
         torrent_description = HTML2PHPBBCode().feed(str(description_element)).replace('[list]', '').replace('[/list]',
                                                                                                             '').replace(
             '[*]', '\n[*]')
-        self.torrent_desc = re.sub(r'(/nfoimg/\d+\.png)', r'https://gazellegames.net\g<1>', torrent_description)
+        torrent_desc = re.sub(r'(/nfoimg/\d+\.png)', r'https://gazellegames.net\g<1>', torrent_description)
+        nfo_img = re.search(r'https://gazellegames\.net/nfoimg/\d+\..+?g(?=\[/img])', torrent_desc).group(0)
+        try:
+            new_nfo_img = upload_imgbb(nfo_img)
+        except:
+            new_nfo_img = nfo_img
+        self.torrent_desc = torrent_desc.replace(nfo_img, new_nfo_img)
         if 'GOG' in release_edition.upper():
             self.release_title += '-GOG'
         self.release_type = release_tag[-1]
@@ -121,7 +142,7 @@ class GGnApi:
         ggn_dir = os.path.join(TORRENT_DIR, 'ggn/')
         if not os.path.exists(ggn_dir):
             os.makedirs(ggn_dir)
-        self.torrent_title = '{}-{}'.format(self.platform,re.sub(r'[/:*?"<>|]', '_', self.release_title))
+        self.torrent_title = '{}-{}'.format(self.platform, re.sub(r'[/:*?"<>|]', '_', self.release_title))
         with open(os.path.join(ggn_dir, os.path.basename('[GGn]{}.torrent'.format(self.torrent_title))),
                   'wb') as t:
             t.write(torrent)

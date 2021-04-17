@@ -8,9 +8,11 @@ if 'cookies.json' not in os.listdir() or 'config.ini' not in os.listdir():
     torrent_dir = ''
     headers = ''
     elite_gamer = ''
+    imgbb_key = ''
 else:
     config = configparser.ConfigParser()
     config.read('config.ini')
+    imgbb_key = '7c27ed01127babfb2393eaf524ab7472'
     pter_key = config['PTER']['pter_key']
     anonymous = config['PTER']['anonymous']
     torrent_dir = config['WORKDIR']['torrent_dir']
