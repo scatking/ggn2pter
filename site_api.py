@@ -89,8 +89,10 @@ class GGnApi:
         torrent_desc = desc_soup.select_one('#release_desc').text.replace('[align=center]', '').replace('[/align]', '')
         nfo_img = re.search(r'https://gazellegames\.net/nfoimg/\d+\..+?g(?=\[/img])', torrent_desc).group(0)
         try:
+            print('尝试上传nfo信息至图床....')
             new_nfo_img = upload_imgbb(nfo_img)
         except:
+            print('上传nfo信息失败，将使用原始地址!')
             new_nfo_img = nfo_img
         self.torrent_desc = torrent_desc.replace(nfo_img, new_nfo_img)
         self.release_title = desc_soup.select_one('#release_title').get('value').replace('/', '').replace(
@@ -120,8 +122,10 @@ class GGnApi:
         torrent_desc = re.sub(r'(/nfoimg/\d+\.png)', r'https://gazellegames.net\g<1>', torrent_description)
         nfo_img = re.search(r'https://gazellegames\.net/nfoimg/\d+\..+?g(?=\[/img])', torrent_desc).group(0)
         try:
+            print('尝试上传nfo信息至图床....')
             new_nfo_img = upload_imgbb(nfo_img)
         except:
+            print('上传nfo信息失败，将使用原始地址!')
             new_nfo_img = nfo_img
         self.torrent_desc = torrent_desc.replace(nfo_img, new_nfo_img)
         if 'GOG' in release_edition.upper():
