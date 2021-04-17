@@ -29,7 +29,7 @@ def upload_imgbb(img):
     api = 'https://api.imgbb.com/1/upload'
     data = {'key': IMGBBKEY, 'image': img}
     response = requests.post(url=api, data=data).json()
-    if response['success'] == 'true':
+    if response['success']:
         img = response['data']['display_url']
     return img
 
