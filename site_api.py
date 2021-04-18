@@ -86,15 +86,7 @@ class GGnApi:
         # url = 'http://127.0.0.1:85/ggn5.html'
         desc = self.session.get(url)
         desc_soup = BeautifulSoup(desc.text, 'lxml')
-        torrent_desc = desc_soup.select_one('#release_desc').text.replace('[align=center]', '').replace('[/align]', '')
-        nfo_img = re.search(r'https://gazellegames\.net/nfoimg/\d+\..+?g(?=\[/img])', torrent_desc).group(0)
-        try:
-            print('尝试上传nfo信息至图床....')
-            new_nfo_img = upload_imgbb(nfo_img)
-        except:
-            print('上传nfo信息失败，将使用原始地址!')
-            new_nfo_img = nfo_img
-        self.torrent_desc = torrent_desc.replace(nfo_img, new_nfo_img)
+        self.torrent_desc = desc_soup.select_one('#release_desc').text.replace('[align=center]', '').replace('[/align]', '')
         self.release_title = desc_soup.select_one('#release_title').get('value').replace('/', '').replace(
             '[FitGirl Repack]', '-Fitgirl') if desc_soup.select_one('#release_title').get('value') else self.name
         if desc_soup.select_one('#remaster_title'):
@@ -119,15 +111,7 @@ class GGnApi:
         torrent_description = HTML2PHPBBCode().feed(str(description_element)).replace('[list]', '').replace('[/list]',
                                                                                                             '').replace(
             '[*]', '\n[*]')
-        torrent_desc = re.sub(r'(/nfoimg/\d+\.png)', r'https://gazellegames.net\g<1>', torrent_description)
-        nfo_img = re.search(r'https://gazellegames\.net/nfoimg/\d+\..+?g(?=\[/img])', torrent_desc).group(0)
-        try:
-            print('尝试上传nfo信息至图床....')
-            new_nfo_img = upload_imgbb(nfo_img)
-        except:
-            print('上传nfo信息失败，将使用原始地址!')
-            new_nfo_img = nfo_img
-        self.torrent_desc = torrent_desc.replace(nfo_img, new_nfo_img)
+        self.torrent_desc = re.sub(r'(/nfoimg/\d+\.png)', r'https://gazellegames.net\g<1>', torrent_description)
         if 'GOG' in release_edition.upper():
             self.release_title += '-GOG'
         self.release_type = release_tag[-1]
@@ -259,6 +243,15 @@ class PTerApi:
         self.gid = gid
 
     def _upload_torrent(self):
+        if self.scene == 'yes':
+            nfo_img = re.search(r'https://gazellegames\.net/nfoimg/\d+\..+?g(?=\[/img])', self.torrent_desc).group(0)
+            try:
+                print('尝试上传nfo信息至图床....')
+                new_nfo_img = upload_imgbb(nfo_img)
+            except:
+                print('上传nfo信息失败，将使用原始地址!')
+                new_nfo_img = nfo_img
+            self.torrent_desc = self.torrent_desc.replace(nfo_img, new_nfo_img)
         url = 'https://pterclub.com/takeuploadgame.php'
         torrent_file = os.path.join(TORRENT_DIR, '[PTer]{}.torrent'.format(self.torrent_title))
         file = ("file", (os.path.basename(torrent_file), open(torrent_file, 'rb'), 'application/x-bittorrent')),
