@@ -90,13 +90,20 @@ class GGnApi:
         self.release_title = desc_soup.select_one('#release_title').get('value').replace('/', '').replace(
             '[FitGirl Repack]', '-Fitgirl') if desc_soup.select_one('#release_title').get('value') else self.name
         if desc_soup.select_one('#remaster_title'):
-            self.release_title += '-GOG' if 'GOG' in desc_soup.select_one('#remaster_title').get(
-                'value').upper() else ''
+            if 'GOG' in desc_soup.select_one('#remaster_title').get('value').upper():
+                self.release_title += '-GOG'
+                self.verified = 'yes'
+            elif 'INTRO' in desc_soup.select_one('#remaster_title').get('value').upper():
+                self.release_title += '-No-Intro'
+                self.verified = 'yes'
+            elif 'REDUMP' in desc_soup.select_one('#remaster_title').get('value').upper():
+                self.release_title += '-redump.org'
+                self.verified = 'yes'
         self.release_type = desc_soup.select_one('#miscellaneous option[selected="selected"]').text
         if self.release_type == 'GameDOX':
             self.release_type = desc_soup.select_one('#gamedox option[selected="selected"]').text
         self.scene = 'yes' if self.release_type.split('-')[-1] in constant.scene_list else 'no'
-        self.verified = 'yes' if self.release_type in 'P2P DRM Free' else 'no'
+        self.verified = 'yes' if self.release_type in 'P2P DRM Free' else self.verified if self.verified else 'no'
         self.platform = desc_soup.select_one('#platform option[selected="selected"]').text
         return self.torrent_desc
 
@@ -114,11 +121,18 @@ class GGnApi:
         self.torrent_desc = re.sub(r'(/nfoimg/\d+\.png)', r'https://gazellegames.net\g<1>', torrent_description)
         if 'GOG' in release_edition.upper():
             self.release_title += '-GOG'
+            self.verified = 'yes'
+        elif 'INTRO' in release_edition.upper():
+            self.release_title += '-No-Intro'
+            self.verified = 'yes'
+        elif 'REDUMP' in release_edition.upper():
+            self.release_title += '-redump.org'
+            self.verified = 'yes'
         self.release_type = release_tag[-1]
         if self.release_type == 'GameDOX':
             self.release_type = self.release_title.split('-')[-1].strip()
         self.scene = 'yes' if 'scene' in release_tag else 'no'
-        self.verified = 'yes' if self.release_type in 'P2P DRM Free' else 'no'
+        self.verified = 'yes' if self.release_type in 'P2P DRM Free' else self.verified if self.verified else 'no'
         self.platform = self.res_soup.select_one('#groupplatform a').text
         return self.torrent_desc
 
