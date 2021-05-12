@@ -102,8 +102,8 @@ class GGnApi:
         self.release_type = desc_soup.select_one('#miscellaneous option[selected="selected"]').text
         if self.release_type == 'GameDOX':
             self.release_type = desc_soup.select_one('#gamedox option[selected="selected"]').text
-        self.scene = 'yes' if self.release_type.split('-')[-1] in constant.scene_list else 'no'
         self.verified = 'yes' if self.release_type in 'P2P DRM Free' else self.verified if self.verified else 'no'
+        self.scene = 'yes' if self.release_type.split('-')[-1] in constant.scene_list and self.verified == 'no' else 'no'
         self.platform = desc_soup.select_one('#platform option[selected="selected"]').text
         return self.torrent_desc
 
