@@ -82,45 +82,46 @@ class GGnApi:
             self.epic = None
         return {'steam': self.steam, 'epic': self.epic}
 
-    def _copy_desc(self):
-        url = 'https://gazellegames.net/torrents.php?action=edit&id={}'.format(self.torrent_id)
-        # url = 'http://127.0.0.1:85/ggn5.html'
-        desc = self.session.get(url)
-        desc_soup = BeautifulSoup(desc.text, 'lxml')
-        self.torrent_desc = desc_soup.select_one('#release_desc').text.replace('[align=center]', '').replace('[/align]', '')
-        self.release_title = desc_soup.select_one('#release_title').get('value').replace('/', '').replace(
-            '[FitGirl Repack]', '-Fitgirl') if desc_soup.select_one('#release_title').get('value') else self.name
-        if desc_soup.select_one('#remaster_title'):
-            if 'GOG' in desc_soup.select_one('#remaster_title').get('value').upper():
-                self.release_title += '-GOG'
-                self.verified = 'yes'
-            elif 'INTRO' in desc_soup.select_one('#remaster_title').get('value').upper():
-                self.release_title += '-No-Intro'
-                self.verified = 'yes'
-            elif 'REDUMP' in desc_soup.select_one('#remaster_title').get('value').upper():
-                self.release_title += '-redump.org'
-                self.verified = 'yes'
-        self.release_type = desc_soup.select_one('#miscellaneous option[selected="selected"]').text
-        if self.release_type == 'GameDOX':
-            self.release_type = desc_soup.select_one('#gamedox option[selected="selected"]').text
-        self.verified = 'yes' if self.release_type in 'P2P DRM Free' else self.verified
-        self.scene = 'yes' if self.release_type.split('-')[-1] in constant.scene_list and self.verified == 'no' else 'no'
-        self.platform = desc_soup.select_one('#platform option[selected="selected"]').text
-        return self.torrent_desc
-
-    def _parse_desc(self):
+    def _get_desc(self):
         release_element = self.res_soup.select_one('a[onclick*="#torrent_{}"]'.format(self.torrent_id))
-        release_edition = release_element.find_parent('tbody').find_previous_sibling().td.text
-        self.release_title, release_tag = re.search(r'(.+) (\[.+])', release_element.text.strip()).groups()
+        parsed_title, release_tag = re.search(r'(.+) (\[.+])', release_element.text.strip()).groups()
         release_tag = [i.replace(']', '').strip() if '!' not in i else None for i in release_tag.split(',')]
         release_tag = list(filter(None, release_tag))
+
+        if ELITEGAMER == 'yes':
+            url = 'https://gazellegames.net/torrents.php?action=edit&id={}'.format(self.torrent_id)
+            # url = 'http://127.0.0.1:85/ggn5.html'
+            desc = self.session.get(url)
+            desc_soup = BeautifulSoup(desc.text, 'lxml')
+            self.torrent_desc = desc_soup.select_one('#release_desc').text.replace('[align=center]', '').replace(
+                '[/align]', '')
+            self.release_title = desc_soup.select_one('#release_title').get('value').replace('/',
+                                                                                             '') if desc_soup.select_one(
+                '#release_title').get('value') else self.name
+            self.release_edition = desc_soup.select_one('#remaster_title').get('value').upper() if desc_soup.select_one(
+                '#remaster_title') else 'Original Edition'
+            self.release_type = desc_soup.select_one('#miscellaneous option[selected="selected"]').text
+            if self.release_type == 'GameDOX':
+                self.release_type = desc_soup.select_one('#gamedox option[selected="selected"]').text
+            self.platform = desc_soup.select_one('#platform option[selected="selected"]').text
+        else:
+            self.release_edition = release_element.find_parent('tbody').find_previous_sibling().td.text
+            self.release_title = parsed_title
+            description_element = self.res_soup.select_one(
+                'tr#torrent_{} blockquote#description'.format(self.torrent_id))
+            torrent_description = HTML2PHPBBCode().feed(str(description_element)).replace('[list]', '').replace(
+                '[/list]',
+                '').replace(
+                '[*]', '\n[*]')
+            self.torrent_desc = re.sub(r'(/nfoimg/\d+\.png)', r'https://gazellegames.net\g<1>', torrent_description)
+            self.release_type = release_tag[-1]
+            if self.release_type == 'GameDOX':
+                self.release_type = self.release_title.split('-')[-1].strip()
+            self.platform = self.res_soup.select_one('#groupplatform a').text
+
         self.release_title = self.release_title.replace('/', '').replace('[FitGirl Repack]', '-Fitgirl')
-        description_element = self.res_soup.select_one('tr#torrent_{} blockquote#description'.format(self.torrent_id))
-        torrent_description = HTML2PHPBBCode().feed(str(description_element)).replace('[list]', '').replace('[/list]',
-                                                                                                            '').replace(
-            '[*]', '\n[*]')
-        self.torrent_desc = re.sub(r'(/nfoimg/\d+\.png)', r'https://gazellegames.net\g<1>', torrent_description)
-        if 'GOG' in release_edition.upper():
+
+        if 'GOG' in self.release_edition.upper():
             self.release_title += '-GOG'
             self.verified = 'yes'
         elif 'INTRO' in release_edition.upper():
@@ -134,7 +135,7 @@ class GGnApi:
             self.release_type = self.release_title.split('-')[-1].strip()
         self.scene = 'yes' if 'scene' in release_tag else 'no'
         self.verified = 'yes' if self.release_type in 'P2P DRM Free' else self.verified
-        self.platform = self.res_soup.select_one('#groupplatform a').text
+        self.scene = 'yes' if 'Scene' in release_tag else 'no'
         return self.torrent_desc
 
     def _download_torrent(self):
