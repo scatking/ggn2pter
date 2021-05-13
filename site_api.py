@@ -53,6 +53,7 @@ class GGnApi:
         self.session.headers = HEADERS
         self.dl_link = dl_link
         self.torrent_id = re.search(r'id=(\d+)', dl_link).group(1)
+        self.verified = 'no'
 
     def _install_cookies(self):
         if not self.session_cookies:
@@ -102,7 +103,7 @@ class GGnApi:
         self.release_type = desc_soup.select_one('#miscellaneous option[selected="selected"]').text
         if self.release_type == 'GameDOX':
             self.release_type = desc_soup.select_one('#gamedox option[selected="selected"]').text
-        self.verified = 'yes' if self.release_type in 'P2P DRM Free' else self.verified if self.verified else 'no'
+        self.verified = 'yes' if self.release_type in 'P2P DRM Free' else self.verified
         self.scene = 'yes' if self.release_type.split('-')[-1] in constant.scene_list and self.verified == 'no' else 'no'
         self.platform = desc_soup.select_one('#platform option[selected="selected"]').text
         return self.torrent_desc
@@ -132,7 +133,7 @@ class GGnApi:
         if self.release_type == 'GameDOX':
             self.release_type = self.release_title.split('-')[-1].strip()
         self.scene = 'yes' if 'scene' in release_tag else 'no'
-        self.verified = 'yes' if self.release_type in 'P2P DRM Free' else self.verified if self.verified else 'no'
+        self.verified = 'yes' if self.release_type in 'P2P DRM Free' else self.verified
         self.platform = self.res_soup.select_one('#groupplatform a').text
         return self.torrent_desc
 
