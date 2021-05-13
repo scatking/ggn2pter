@@ -124,16 +124,12 @@ class GGnApi:
         if 'GOG' in self.release_edition.upper():
             self.release_title += '-GOG'
             self.verified = 'yes'
-        elif 'INTRO' in release_edition.upper():
+        elif 'INTRO' in self.release_edition.upper():
             self.release_title += '-No-Intro'
             self.verified = 'yes'
-        elif 'REDUMP' in release_edition.upper():
+        elif 'REDUMP' in self.release_edition.upper():
             self.release_title += '-redump.org'
             self.verified = 'yes'
-        self.release_type = release_tag[-1]
-        if self.release_type == 'GameDOX':
-            self.release_type = self.release_title.split('-')[-1].strip()
-        self.scene = 'yes' if 'scene' in release_tag else 'no'
         self.verified = 'yes' if self.release_type in 'P2P DRM Free' else self.verified
         self.scene = 'yes' if 'Scene' in release_tag else 'no'
         return self.torrent_desc
@@ -171,7 +167,7 @@ class GGnApi:
         print('正在获取游戏信息...')
         self._find_store()
         print('正在获取种子信息...')
-        self._copy_desc() if ELITEGAMER == 'yes' else self._parse_desc()
+        self._get_desc()
         print('正在下载种子...')
         self._download_torrent()
         return self._return_terms()
