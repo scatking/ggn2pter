@@ -233,8 +233,8 @@ class PTerApi:
         url = 'https://pterclub.com/takeuploadgameinfo.php'
         if self.steam:
             game_info = scatfunc.steam_api(self.steam)
-        elif self.epic:
-            game_info = scatfunc.epic_api(self.epic)
+        # elif self.epic:
+        #     game_info = scatfunc.epic_api(self.epic)
         else:
             print('未找到steam或epic链接，正在前往indenova查询\n... ... ...')
             indie_data = find_indie(self.name)
