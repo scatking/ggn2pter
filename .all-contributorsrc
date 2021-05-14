@@ -1,0 +1,24 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "tlwzzy",
+      "name": "tlwzzy",
+      "avatar_url": "https://avatars.githubusercontent.com/u/36352458?v=4",
+      "profile": "https://github.com/tlwzzy",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "ggn2pter",
+  "projectOwner": "scatking",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
