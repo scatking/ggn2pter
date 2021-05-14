@@ -1,7 +1,5 @@
-# ggn2pter GGn快捷转种工具![python](https://img.shields.io/badge/python-3.7-blue)![time](https://img.shields.io/github/last-commit/scatking/ggn2pter)
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
+# ggn2pter GGn快捷转种工具![python](https://img.shields.io/badge/python-3.7-blue)![time](https://img.shields.io/github/last-commit/scatking/ggn2pter)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)<!-- ALL-CONTRIBUTORS-BADGE:END -->
+
 
 ## 简介
 
@@ -134,9 +132,9 @@ python main.py
 * * 找到`request header/请求头` 中cookie项目中的字段并复制下来：
 * * ![cookies.png](https://img.pterclub.com/images/2021/03/22/3abed1483ad76c9a6.png)
 
-## Contributors ✨
+## 贡献者 ✨
 
-Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+感谢以下诸位的共同协作:
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
@@ -151,5 +149,3 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
-
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
