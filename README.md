@@ -73,11 +73,20 @@ python main.py
 * 种子下载目录
 * 是否为`elite gamer`
 * 站点`cookies`（见下文）
+* GGn的Api Key （见下文）
 
-### 2.填写cookies
+### 2.1 填写cookies
 第一次运行程序时，程序会让你输入GGn与猫站的cookies，按照提示输入即可：
 ![cookies.png](https://img.pterclub.com/images/2021/03/15/2021-03-15-223914.png)
 如果不知道如何获取cookies的，可以参考[常见问题](https://github.com/scatking/ggn2pter#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98)
+
+### 2.2 填写GGn API key
+GGn目前已经支持Api请求模式，由于该模式不需要再访问网站，因此该模式更加快捷简便，同时也更加安全，强烈建议填写API Key启动该模式。
+* 前往GGn `edit`页面，下拉找到` API Keys `栏目，输入名称并勾选`Torrents`栏目：
+![API](https://i.vgy.me/T0rZxV.png)
+* 点击最下方保存栏目后页面上方会弹出API Key，注意保存
+![KEY](https://i.vgy.me/GzLeuP.png)
+
 
 ### 3.选择运行模式
 
