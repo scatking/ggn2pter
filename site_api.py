@@ -14,6 +14,7 @@ TORRENT_DIR = constant.torrent_dir
 HEADERS = constant.headers
 ELITEGAMER = constant.elite_gamer
 IMGBBKEY = constant.imgbb_key
+GGNAPI = constant.ggn_api
 
 
 def true_input(content):
@@ -63,6 +64,38 @@ class GGnApi:
             self.session.cookies = requests.utils.cookiejar_from_dict(cookies)
         else:
             return None
+
+    def _name_tweak(self):
+        if 'GOG' in self.release_edition.upper():
+            self.release_title += '-GOG'
+            self.verified = 'yes'
+        elif 'INTRO' in self.release_edition.upper():
+            self.release_title += '-No-Intro'
+            self.verified = 'yes'
+        elif 'REDUMP' in self.release_edition.upper():
+            self.release_title += '-redump.org'
+            self.verified = 'yes'
+
+    def _handle_api(self):
+        url = 'https://gazellegames.net/api.php?request=torrent&id={}'.format(self.torrent_id)
+        self.session.headers.update({'X-API-Key': GGNAPI})
+        res = self.session.get(url).json()
+        game_info = res['response']['group']
+        self.name = game_info['name']
+        self.platform = game_info['platform']
+        links = game_info['gameInfo']['weblinks']
+        self.steam = links['Steam'] if 'Steam' in links else None
+        self.epic = links['EpicGames'] if 'EpicGames' in links else None
+        torrent_info = res['response']['torrent']
+        self.release_title = torrent_info['releaseTitle'].replace('/', '').replace('[FitGirl Repack]', '-Fitgirl')
+        self.torrent_desc = torrent_info['bbDescription'].replace('[align=center]', '').replace('[/align]', '')
+        self.release_edition = torrent_info['remasterTitle'] if torrent_info[
+                                                                    'remastered'] is True else 'Original Edition'
+        self.release_type = torrent_info['releaseType']
+        self.release_type = torrent_info['gameDOXType'] if self.release_type == 'GameDOX' else self.release_type
+        self.scene = 'yes' if torrent_info['scene'] is True else 'no'
+        self.verified = 'yes' if self.release_type in 'P2P DRM Free' else 'no'
+        self._name_tweak()
 
     def _find_store(self):
         url = 'https://gazellegames.net/torrents.php?torrentid={}'.format(self.torrent_id)
@@ -121,15 +154,7 @@ class GGnApi:
 
         self.release_title = self.release_title.replace('/', '').replace('[FitGirl Repack]', '-Fitgirl')
 
-        if 'GOG' in self.release_edition.upper():
-            self.release_title += '-GOG'
-            self.verified = 'yes'
-        elif 'INTRO' in self.release_edition.upper():
-            self.release_title += '-No-Intro'
-            self.verified = 'yes'
-        elif 'REDUMP' in self.release_edition.upper():
-            self.release_title += '-redump.org'
-            self.verified = 'yes'
+        self._name_tweak()
         self.verified = 'yes' if self.release_type in 'P2P DRM Free' else self.verified
         self.scene = 'yes' if 'Scene' in release_tag else 'no'
         return self.torrent_desc
@@ -158,16 +183,20 @@ class GGnApi:
         attr = {}
         for name, value in vars(self).items():
             attr[name] = value
-        del attr['res_soup']
-        del attr['session']
+        attr['res_soup'] = None
+        attr['session'] = None
         return attr
 
     def worker(self):
-        self._install_cookies()
-        print('正在获取游戏信息...')
-        self._find_store()
-        print('正在获取种子信息...')
-        self._get_desc()
+        if GGNAPI:
+            print('正在获取游戏&种子信息...')
+            self._handle_api()
+        else:
+            self._install_cookies()
+            print('正在获取游戏信息...')
+            self._find_store()
+            print('正在获取种子信息...')
+            self._get_desc()
         print('正在下载种子...')
         self._download_torrent()
         return self._return_terms()
